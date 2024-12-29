@@ -6,7 +6,6 @@ impl SudokuGrid {
     pub fn new(grid: Vec<Vec<u8>>) -> Self {
         Self { grid }
     }
-
     pub fn get_row(&self, row: usize) -> &[u8] {
         &self.grid[row]
     }
