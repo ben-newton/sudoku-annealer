@@ -15,17 +15,7 @@ impl SudokuScorer {
             .map(|(num, &count)| (num as u8, count))
             .collect()
     }
-    // fn get_block_numbers(grid: &[Vec<u8>], block_row: usize, block_col: usize) -> Vec<u8> {
-    //     let mut numbers = Vec::new();
-    //     for i in 0..3 {
-    //         for j in 0..3 {
-    //             let row = block_row * 3 + i;
-    //             let col = block_col * 3 + j;
-    //             numbers.push(grid[row][col]);
-    //         }
-    //     }
-    //     numbers
-    // }
+
     pub fn score(sudoku_grid: &SudokuGrid) -> Result<u32, Box<dyn Error>> {
         // Check rows
         let mut row_score = 0;

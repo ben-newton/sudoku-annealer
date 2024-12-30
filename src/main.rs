@@ -8,7 +8,6 @@ mod modules {
 // Local module imports
 use modules::{
     grid::SudokuGrid,
-    reader::read_sudoku,
     scorer::SudokuScorer,
 };
 
@@ -23,13 +22,15 @@ fn main() {
         }
     };
 
-    let grid = match read_sudoku(file_path) {
-        Ok(g) => SudokuGrid::new(g),
+    let grid = match SudokuGrid::new(file_path) {
+        Ok(g) => g,
         Err(err) => {
             println!("Error reading grid: {}", err);
             process::exit(1);
         }
     };
+
+    let initial_grid = SudokuGrid::initial_grid(&grid);
 
     match SudokuScorer::score(&grid) {
         Ok(score) => println!("Total score: {}", score),
