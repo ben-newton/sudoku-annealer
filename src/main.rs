@@ -29,9 +29,9 @@ fn main() {
             process::exit(1);
         }
     };
-    let n = 1000000;
-    let mut temperature: f64 = 0.5;
-    let delta: f64 = 1.;
+    let n = 1500000;
+    let mut temperature: f64 = 1.;
+    let delta: f64 = 2.5;
     let alpha: f64 = 0.98;
     let mut iteration_count: u16 = 0;
     let max_iter: u16 = 200;
