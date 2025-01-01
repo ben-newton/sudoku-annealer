@@ -8,7 +8,7 @@ mod modules {
 // Local module imports
 use modules::{
     grid::SudokuGrid,
-    scorer::SudokuScorer,
+    grid::InitialiseGrid
 };
 
 use std::{env, process};
@@ -21,8 +21,9 @@ fn main() {
             process::exit(1);
         }
     };
-
-    let grid = match SudokuGrid::new(file_path) {
+    let grid_initialiser = InitialiseGrid::new(file_path);
+    let (binary, initial_grid) = grid_initialiser.generate_initial();
+    let  current_grid = match SudokuGrid::new(binary, initial_grid) {
         Ok(g) => g,
         Err(err) => {
             println!("Error reading grid: {}", err);
@@ -30,13 +31,13 @@ fn main() {
         }
     };
 
-    let initial_grid = SudokuGrid::initial_grid(&grid);
+    for _ in 1..100 {
 
-    match SudokuScorer::score(&grid) {
-        Ok(score) => println!("Total score: {}", score),
-        Err(err) => {
-            println!("Error scoring grid: {}", err);
-            process::exit(1);
-        }
     }
+    let temperature: u8 = 0;
+    SudokuGrid::perform_move(&current_grid, temperature);
+
+    // let mut delta: f64 = 0.1;
+    // let mut alpha:u8 = 0;
+    // let mut n: u8 = 0;
 }
