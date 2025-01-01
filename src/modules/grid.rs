@@ -1,6 +1,5 @@
 use super::reader;
 use std::{ffi::OsString, process};
-use num_traits::pow;
 use rand::seq::SliceRandom;
 use rand::prelude::IteratorRandom;
 
@@ -93,6 +92,13 @@ impl SudokuGrid {
             .map(|(num, &count)| (num as u8, count))
             .collect()
     }
+    pub fn current_score(&self) -> u32 {
+        self.score(&self.grid)
+    }
+
+    pub fn current_grid(&self) -> Vec<Vec<u8>> {
+        self.grid.clone()
+    }
     pub fn score(&self, grid: &Vec<Vec<u8>>) -> u32 {
         // Check rows
         let mut row_score = 0;
@@ -129,7 +135,7 @@ impl SudokuGrid {
         self.score(grid)
     }
 
-    pub fn perform_move(&self, temperature: u8) -> Vec<Vec<u8>>{        
+    pub fn perform_move(&mut self, temperature: f64) -> bool{        
         let mut rng = rand::thread_rng();
         let blocks: Vec<Vec<u8>> = self.get_blocks(&self.grid);
         let binary_blocks: Vec<Vec<u8>> = self.get_blocks(&self.binary);
@@ -137,9 +143,7 @@ impl SudokuGrid {
         let block_index = (0..blocks.len()).choose(&mut rng).unwrap();
         let chosen_block = &blocks[block_index];
         let chosen_binary_block = &binary_blocks[block_index];
-        println!("Chosen block: {:?}", chosen_block);
-        println!("Chosen binary block: {:?}", chosen_binary_block);
-        
+
         let available_indices: Vec<usize> = chosen_binary_block.iter()
             .enumerate()
             .filter(|&(_, &val)| val == 0)
@@ -151,10 +155,7 @@ impl SudokuGrid {
                 .choose_multiple(&mut rng, 2)
                 .cloned()
                 .collect();
-            println!("Swapping values at positions {} and {}", 
-                selected_indices[0], selected_indices[1]);
-            println!("Values to swap: {} and {}", 
-                chosen_block[selected_indices[0]], chosen_block[selected_indices[1]]);
+
             // Create a new block with the swapped values
             let mut new_block = chosen_block.clone();
             new_block.swap(selected_indices[0], selected_indices[1]);
@@ -162,30 +163,32 @@ impl SudokuGrid {
             let mut new_blocks = blocks.clone();
             new_blocks[block_index] = new_block;
             let new_grid = self.blocks_to_grid(new_blocks);
-            println!("{:?}", self.grid);
-            println!("{:?}", new_grid);
             let old_score = self.calculate_move(&self.grid);
             let new_score = self.calculate_move(&new_grid);
-            println!("old score: {:?}", old_score);
-            println!("new score: {:?}", new_score);
+            // println!("old score: {:?}", old_score);
+            // println!("new score: {:?}", new_score);
+            // println!("");
 
             if new_score < old_score {
-                new_grid
+                self.grid = new_grid.clone();
+                true
             }
             else {
                 let energy_difference = new_score - old_score;
-                let exp: f64 = -(energy_difference as f64) / (temperature as f64);
+                let exp: f64 = -(energy_difference as f64) / (temperature);
                 let probability = std::f64::consts::E.powf(exp);
+                // println!("probability: {:#?}", probability);
                 let random_value: f64 = rand::random();
                 if random_value <= probability {
-                    new_grid
+                    self.grid = new_grid.clone();
+                    true
                 } else {
-                    self.blocks_to_grid(blocks)
+                    false
                 }
             }
             }
         else {
-            self.blocks_to_grid(blocks)
+            false
         }
     }
 }
